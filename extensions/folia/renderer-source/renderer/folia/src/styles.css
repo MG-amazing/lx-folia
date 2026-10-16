@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+body {
+  color: #e4e4e7;
+  font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+}
+
+.cinema-backdrop {position:absolute;inset:-6%;background-size:cover;background-position:center;filter:blur(12px) brightness(.38) saturate(.85);transform:scale(1.1)}
+.cinema-wash {position:absolute;inset:0;pointer-events:none}
+.ambient-stage {position:absolute;inset:0;overflow:hidden;color:#fff;perspective:800px}
+.ambient-cover-wall {position:absolute;inset:15% -25%;display:grid;grid-template-columns:repeat(3,1fr);gap:16px;opacity:.18;transform:rotate(-12deg) scale(1.1);animation:cover-drift 18s ease-in-out infinite alternate;filter:blur(1px)}
+.ambient-cover-wall div {aspect-ratio:1;border-radius:18px;overflow:hidden;background:#ffffff22;box-shadow:0 20px 50px #0005}.ambient-cover-wall img {width:100%;height:100%;object-fit:cover}.ambient-cover-wall span{font-size:80px}
+.ambient-info {position:absolute;top:35%;left:8%;right:8%;text-align:center;text-shadow:0 4px 30px #000;animation:credit-float 6s ease-in-out infinite alternate}
+.ambient-info h1{font-size:clamp(28px,8vw,58px);line-height:1.18;font-weight:800;margin:18px 0}.ambient-info p{font-size:20px;opacity:.9;margin:10px 0}.ambient-info small{font-size:13px;opacity:.6}.ambient-kicker{font-size:10px;letter-spacing:.4em;opacity:.6}.ambient-credit{font-size:14px;line-height:1.6;margin-top:10px;opacity:.8}
+.ambient-orbit{position:absolute;width:65vw;height:65vw;border:1px solid #ffffff25;border-radius:50%;top:25%;left:15%;animation:orbit-drift 20s linear infinite}.orbit-two{width:90vw;height:90vw;left:-15%;top:20%;transform:rotateX(65deg);animation-direction:reverse}
+.ambient-pulse-bars{position:absolute;bottom:24%;left:25%;right:25%;height:40px;display:flex;justify-content:center;align-items:center;gap:4px;opacity:.5}.ambient-pulse-bars i{display:block;flex:1;max-width:3px;background:currentColor;border-radius:3px;animation:ambient-wave 1.6s ease-in-out infinite alternate}
+.ambient-paused *{animation-play-state:paused!important}.particle-translation{position:absolute;bottom:5%;left:7%;right:7%;text-align:center;font-size:14px;color:#fff;opacity:.8;text-shadow:0 2px 8px #000}
+@keyframes cover-drift{to{transform:rotate(-7deg) scale(1.2) translateY(-30px)}}@keyframes credit-float{to{transform:translateY(-12px)}}@keyframes orbit-drift{to{transform:rotate(360deg) rotateY(45deg)}}@keyframes ambient-wave{to{transform:scaleY(.25);opacity:.3}}
+
+/* Folia-style instrumental pause: light points and short trails, no song information card. */
+.interlude-stage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.interlude-dots{display:flex;flex-direction:column;align-items:center;gap:24px;width:96px;transform:translateY(-10px)}
+.interlude-dot-track{position:relative;display:block;width:7px;height:7px;animation:interlude-reveal 1.8s ease-in-out infinite}
+.interlude-dot-track:nth-child(1){margin-left:-30px}.interlude-dot-track:nth-child(2){margin-left:30px}
+.interlude-dot-track i{display:block;width:7px;height:7px;border-radius:50%}
+.interlude-dot-track b{position:absolute;left:-10px;top:12px;width:28px;height:1px;opacity:.22}
+.interlude-paused .interlude-dot-track{animation-play-state:paused}
+@keyframes interlude-reveal{0%,100%{opacity:.28;transform:translateY(2px) scale(.8)}40%{opacity:1;transform:translateY(-2px) scale(1.12)}70%{opacity:.65;transform:translateY(0) scale(1)}}
+@media(prefers-reduced-motion:reduce){.interlude-dot-track{animation:none;opacity:.8}}

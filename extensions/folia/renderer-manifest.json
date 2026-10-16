@@ -1,0 +1,131 @@
+{
+  "protocol": 1,
+  "commit": "7701347918a4177c1c57b538d7556db9606be67a",
+  "license": "AGPL-3.0",
+  "source": "renderer-source",
+  "effects": [
+    {
+      "id": "sonnet",
+      "name": "商籁",
+      "label": "商籁",
+      "order": 10
+    },
+    {
+      "id": "tempera",
+      "name": "Tempera",
+      "label": "凝彩",
+      "order": 20
+    },
+    {
+      "id": "lumiere",
+      "name": "绘光",
+      "label": "绘光",
+      "order": 25
+    },
+    {
+      "id": "classic",
+      "name": "Luminous",
+      "label": "流光",
+      "order": 30
+    },
+    {
+      "id": "cadenza",
+      "name": "Mindscape",
+      "label": "心象",
+      "order": 40
+    },
+    {
+      "id": "partita",
+      "name": "云阶",
+      "label": "云阶",
+      "order": 50
+    },
+    {
+      "id": "fume",
+      "name": "Fume",
+      "label": "浮名",
+      "order": 60
+    },
+    {
+      "id": "tilt",
+      "name": "Tilt",
+      "label": "倾诉",
+      "order": 70
+    },
+    {
+      "id": "claddagh",
+      "name": "Claddagh",
+      "label": "回环",
+      "order": 80
+    },
+    {
+      "id": "monet",
+      "name": "Monet",
+      "label": "莫奈",
+      "order": 90
+    },
+    {
+      "id": "pendolo",
+      "name": "Pendolo",
+      "label": "时计",
+      "order": 100
+    },
+    {
+      "id": "cappella",
+      "name": "Cappella",
+      "label": "群唱",
+      "order": 110
+    },
+    {
+      "id": "diorama",
+      "name": "镜台",
+      "label": "镜台",
+      "order": 120
+    },
+    {
+      "id": "still",
+      "name": "Still",
+      "label": "静止",
+      "order": 130
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "common",
+      "name": "Common",
+      "label": "通用",
+      "order": 10
+    },
+    {
+      "id": "monet",
+      "name": "Monet",
+      "label": "莫奈",
+      "order": 20
+    },
+    {
+      "id": "nomand",
+      "name": "Nomand",
+      "label": "漫游",
+      "order": 30
+    },
+    {
+      "id": "latent",
+      "name": "Latent",
+      "label": "隐现",
+      "order": 35
+    },
+    {
+      "id": "url",
+      "name": "Embed",
+      "label": "嵌入",
+      "order": 40
+    },
+    {
+      "id": "sora",
+      "name": "Sora",
+      "label": "空",
+      "order": 50
+    }
+  ],
+  "sha256": "0112075e1ef0510d9caf07f6b505be5f7f65b644065c248b0123a7097efb4f11"
+}

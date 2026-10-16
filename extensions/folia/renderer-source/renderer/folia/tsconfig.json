@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "noEmit": true,
+    "useDefineForClassFields": false,
+    "experimentalDecorators": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/mods/folium/registries/tunings": ["./src/adapters/foliumTunings.ts"],
+      "@/*": ["./vendor/src/*"],
+      "react-i18next": ["./src/adapters/reactI18next.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../../src/music/foliaBridge.ts"],
+  "exclude": ["node_modules", "dist"]
+}

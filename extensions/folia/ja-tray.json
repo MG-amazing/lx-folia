@@ -1,0 +1,21 @@
+{
+  "collect": "お気に入りに追加",
+  "uncollect": "お気に入りから削除",
+  "play": "再生",
+  "pause": "一時停止",
+  "next": "次の曲",
+  "prev": "前の曲",
+  "hide_win_main": "メイン画面を隠す",
+  "show_win_main": "メイン画面を表示",
+  "hide_win_lyric": "デスクトップ歌詞を隠す",
+  "show_win_lyric": "デスクトップ歌詞を表示",
+  "lock_win_lyric": "歌詞を固定",
+  "unlock_win_lyric": "歌詞の固定を解除",
+  "top_win_lyric": "歌詞を最前面に表示",
+  "untop_win_lyric": "歌詞の最前面表示を解除",
+  "show_statusbar_lyric": "ステータスバーに歌詞を表示",
+  "hide_statusbar_lyric": "ステータスバーの歌詞を隠す",
+  "exit": "終了",
+  "music_name": "曲名：",
+  "music_singer": "アーティスト："
+}

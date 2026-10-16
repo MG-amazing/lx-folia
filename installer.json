@@ -1,0 +1,25 @@
+{
+  "appId": "com.mgamazing.lxfolia",
+  "productName": "LX-Folia",
+  "executableName": "LX-Folia",
+  "directories": {
+    "output": "build",
+    "buildResources": "resources"
+  },
+  "win": {
+    "target": [
+      "nsis"
+    ],
+    "icon": "resources/icons/icon.ico",
+    "signAndEditExecutable": false,
+    "artifactName": "LX-Folia-v0.1.0-win-x64-Setup.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "language": "2052",
+    "allowToChangeInstallationDirectory": true,
+    "license": "licenses/license.rtf",
+    "shortcutName": "LX Folia"
+  },
+  "publish": null
+}

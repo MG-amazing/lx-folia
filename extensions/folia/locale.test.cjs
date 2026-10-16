@@ -1,0 +1,4 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const path=require('node:path');
+const root=path.resolve(__dirname,'../..');const read=n=>JSON.parse(fs.readFileSync(path.join(root,'src/lang',n+'.json'),'utf8'));
+test('Japanese contains every LX key and preserves interpolation tokens',()=>{const en=read('en-us'),ja=read('ja-jp');assert.deepEqual(Object.keys(ja).sort(),Object.keys(en).sort());for(const key of Object.keys(en)){assert.equal(typeof ja[key],'string');assert.deepEqual((ja[key].match(/\{[^{}]+\}/g)||[]).sort(),(en[key].match(/\{[^{}]+\}/g)||[]).sort(),key);}});
+test('New standalone profiles default to Japanese without accepting the original pact',()=>{const bootstrap=fs.readFileSync(path.join(__dirname,'bootstrap.cjs'),'utf8');assert.match(bootstrap,/'common.langId':'ja-jp'/);assert.doesNotMatch(bootstrap,/isAgreePact/);});

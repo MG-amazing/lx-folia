@@ -1,0 +1,7 @@
+LX Folia lyrics extension for local use.
+LX Music 2.12.6: https://github.com/lyswhut/lx-music-desktop (Apache-2.0).
+Folia renderer: https://github.com/chthollyphile/folia-major,
+commit 7701347918a4177c1c57b538d7556db9606be67a (AGPL-3.0).
+The offline renderer and corresponding sources are supplied with this integration;
+its existing NOTICE, LICENSE, and upstream attribution are preserved in renderer-source.
+Only lyric presentation is added. LX continues to own audio, sources, downloads and lists.

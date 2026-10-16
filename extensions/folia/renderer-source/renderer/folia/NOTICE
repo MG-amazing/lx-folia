@@ -1,0 +1,24 @@
+Folia renderer for dmsys-mobile
+================================
+
+This directory bundles source code from Folia (folia-major)
+  https://github.com/chthollyphile/folia-major
+  commit 7701347918a4177c1c57b538d7556db9606be67a
+  license: GNU Affero General Public License v3.0 (see vendor/LICENSE)
+
+vendor/src/** contains the upstream files listed in vendor/UPSTREAM.json, copied verbatim at their
+original paths. They are not modified. The lyric visualizer core (sonnet/*, cadenza/*, partita/*,
+classic, tilt, cappella, claddagh, diorama, pendolo, lumiere, GlowWord, FluidBackground) is retained from upstream. A documented build-time seam adds sung-character tint to Sonnet using its real glyph intervals; local adapters and extensions are described in MOBILE-STAGE.md.
+
+Local files (src/**) are adapters that replace selected upstream modules at bundle time (see
+src/seams.mjs and plan.md): the outer VisualizerShell, the Folium tunings registry, react-i18next,
+the Lucide icon resolver (static icon table instead of per-icon network chunks) and the player
+bottom-bar layout hooks. Eager image globs are bundled as local data URIs; the visualizer-only interlude sentinel avoids pulling the app lyric parser into the renderer. Local AmbientCredits supplies an error fallback. Intro and instrumental gaps are passed to each original renderer using Folia interlude sentinel lines; the selected renderer remains mounted across those gaps. The persisted manual effect selection chooses the original renderers; the historical particles selection now uses upstream Lumiere with its glyph flight trails, light field, stars and background text. No network request is made by the bundle; the HTML carries a CSP that
+forbids every remote scheme.
+
+Build (from this directory): npm install && npm run build
+  -> dist/index.html and ../../src/assets/folia-renderer.json (inline HTML consumed by the app).
+
+Distribution note: the resulting bundle is a derivative work under AGPL-3.0. Corresponding source
+is this directory (vendor/ + src/ + build.mjs). Review the licence obligations before publishing
+the mobile app.
