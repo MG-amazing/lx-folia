@@ -120,7 +120,7 @@ const App: React.FC = () => {
   const fittedScale = ['pendolo','cappella','still'].includes(doc.mode)
     ? Math.min(doc.fontScale * (doc.mode==='pendolo'?1.6:1.25),viewport.width<800?1.8:2.5)
     : ['tempera','fume','sonnet'].includes(doc.mode) ? doc.fontScale : fitLyricScale(doc.fontScale,viewport.width,viewport.height,activeAtoms);
-  (window as any).__foliaDiagnostics = {mode: doc.mode, lineIndex, background: (doc as any).desktop?.background || "common", playing, lines: lines.length,fontScale:fittedScale,viewport};
+  (window as any).__foliaDiagnostics = {mode: doc.mode, lineIndex, background: (doc as any).desktop?.background || "common", playing, lines: lines.length,fontScale:fittedScale,viewport,characterEntrance:true,activeWords:activeAtoms.length};
   const scene = doc.mode;
   const desktop = (doc as any).desktop || {};
   (window as any).__lxFoliaPerformance={backgroundFps:desktop.backgroundFps||30,pixelBudget:desktop.quality==='high'?1280*720:640*360};
@@ -158,7 +158,7 @@ const App: React.FC = () => {
           staticMode={reduceMotion}
           lyricsFontScale={fittedScale}
           sonnetTuning={tuning}
-          temperaTuning={{...DEFAULT_TEMPERA_TUNING,wholeLineLyrics:doc.timing!=='word',textureResolution:desktop.quality==='high'?Math.min(devicePixelRatio,2):1,postProcessEnabled:desktop.quality==='high',postProcessTextureCompression:true}}
+          temperaTuning={{...DEFAULT_TEMPERA_TUNING,wholeLineLyrics:false,textureResolution:desktop.quality==='high'?Math.min(devicePixelRatio,2):1,postProcessEnabled:desktop.quality==='high',postProcessTextureCompression:true}}
           lumiereTuning={{...DEFAULT_LUMIERE_TUNING, trails: true, textBloom: 0.5, bloom: 0.75, lightIntensity: 0.85, echo: 0.7, unlitOpacity: 0.3}}
           hideTranslationSubtitle={desktop.showTranslation === false}
           showSubtitleTranslation={desktop.showTranslation !== false}

@@ -4,7 +4,7 @@
  *
  * Word timing is never invented: real Enhanced-LRC word tags map 1:1 onto Folia words. Lines without
  * word tags become a single word spanning the line, and the document is labelled `line-estimated` so
- * the UI can disclose missing word timestamps. The renderer must keep such a span together.
+ * the UI can disclose missing word timestamps. The renderer may derive decorative character entrances without marking them as real word timing.
  */
 import {FOLIA_SCENES} from './foliaScenes';
 import type {LyricWord, WordLyricDocument} from './wordLyrics';
