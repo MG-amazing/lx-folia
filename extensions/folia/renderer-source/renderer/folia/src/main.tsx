@@ -34,7 +34,7 @@ import {attachFoliaInterludes, findFoliaTimelineLine} from '../../../src/music/f
 import VisualizerLumiere from '../vendor/src/components/visualizer/lumiere/VisualizerLumiere';
 import {providerTimedLine} from './adapters/providerGraphemes';
 import {fitLyricScale} from './fitLyrics';
-import { DEFAULT_SONNET_TUNING, DEFAULT_LUMIERE_TUNING, DEFAULT_LATENT_BACKGROUND_TUNING, type AudioBands, type Line, type SonnetTuning } from '../vendor/src/types';
+import { DEFAULT_SONNET_TUNING, DEFAULT_TEMPERA_TUNING, DEFAULT_LUMIERE_TUNING, DEFAULT_LATENT_BACKGROUND_TUNING, type AudioBands, type Line, type SonnetTuning } from '../vendor/src/types';
 import { annotateLyricLines } from '../vendor/src/utils/lyrics/renderHints';
 import { installBridge, post } from './bridge';
 import { ShellOptionsContext } from './Shell';
@@ -117,10 +117,13 @@ const App: React.FC = () => {
 
   if (!doc) return <div className="w-full h-full" style={{ background: 'transparent' }} />;
   const activeAtoms=lines[Math.max(0,lineIndex)]?.words.map(word=>word.text)||[];
-  const fittedScale=fitLyricScale(doc.fontScale,viewport.width,viewport.height,activeAtoms);
+  const fittedScale = ['pendolo','cappella','still'].includes(doc.mode)
+    ? Math.min(doc.fontScale * (doc.mode==='pendolo'?1.6:1.25),viewport.width<800?1.8:2.5)
+    : ['tempera','fume','sonnet'].includes(doc.mode) ? doc.fontScale : fitLyricScale(doc.fontScale,viewport.width,viewport.height,activeAtoms);
   (window as any).__foliaDiagnostics = {mode: doc.mode, lineIndex, background: (doc as any).desktop?.background || "common", playing, lines: lines.length,fontScale:fittedScale,viewport};
   const scene = doc.mode;
   const desktop = (doc as any).desktop || {};
+  (window as any).__lxFoliaPerformance={backgroundFps:desktop.backgroundFps||30,pixelBudget:desktop.quality==='high'?1280*720:640*360};
 
   const Renderer = ({classic: VisualizerClassic, tilt: VisualizerTilt, cadenza: VisualizerCadenza, claddagh: VisualizerCladdagh, pendolo: VisualizerPendolo, cappella: VisualizerCappella, diorama: VisualizerDiorama, sonnet: VisualizerSonnet, lumiere: VisualizerLumiere, particles: VisualizerLumiere, fume: VisualizerFume, monet: VisualizerMonet, partita: VisualizerPartita, still: VisualizerStill, tempera: VisualizerTempera} as const)[scene as 'sonnet'] || VisualizerClassic;
   const theme = reduceMotion ? { ...doc.theme, animationIntensity: 'calm' as const } : doc.theme;
@@ -139,7 +142,7 @@ const App: React.FC = () => {
           </SceneBoundary>
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{backgroundColor:`rgba(0,0,0,${desktop.dim ?? .35})`}}/>
-        {<SceneBoundary key={scene} fallback={<AmbientCredits doc={doc} cover={cover} paused={!playing} reduceMotion={reduceMotion} />}><Renderer
+        {<SceneBoundary key={`${scene}:${doc.trackKey}`} fallback={<AmbientCredits doc={doc} cover={cover} paused={!playing} reduceMotion={reduceMotion} />}><Renderer
           currentTime={currentTime}
           currentLineIndex={lineIndex}
           lines={lines}
@@ -155,12 +158,15 @@ const App: React.FC = () => {
           staticMode={reduceMotion}
           lyricsFontScale={fittedScale}
           sonnetTuning={tuning}
+          temperaTuning={{...DEFAULT_TEMPERA_TUNING,wholeLineLyrics:doc.timing!=='word',textureResolution:desktop.quality==='high'?Math.min(devicePixelRatio,2):1,postProcessEnabled:desktop.quality==='high',postProcessTextureCompression:true}}
           lumiereTuning={{...DEFAULT_LUMIERE_TUNING, trails: true, textBloom: 0.5, bloom: 0.75, lightIntensity: 0.85, echo: 0.7, unlitOpacity: 0.3}}
           hideTranslationSubtitle={desktop.showTranslation === false}
           showSubtitleTranslation={desktop.showTranslation !== false}
           onLyricLineSeek={time=>post({type:"lyric-seek",time} as any)}
           subtitleContentMode="translation"
-          subtitleFontScale={0.95}
+          subtitleFontScale={scene==='pendolo'?1.45:1.2}
+          subtitleOverlayOpacity={.95}
+          subtitleTheme={{...theme,secondaryColor:'#ded6eb'}}
           subtitleOverlayBackground={false}
           isPlayerChromeHidden
           background={{ transparent: true }}

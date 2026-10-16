@@ -36,6 +36,15 @@ export const seamsPlugin = () => ({
     });
     // Vite's eager image globs become offline data URIs. Original components stay unmodified.
     // Preserve original files on disk; expose actual sung glyph intervals to a local karaoke tint.
+    // Cap only background shader drawing; lyric and audio clocks keep their native cadence.
+    build.onLoad({filter:/[\\/]@paper-design[\\/]shaders[\\/]dist[\\/]shader-mount\.js$/},args=>{
+      const source=fs.readFileSync(args.path,'utf8');
+      const anchor='    const dt = currentTime - this.lastRenderTime;';
+      if(!source.includes(anchor))throw Error('Paper shader frame limiter anchor changed');
+      return {contents:source.replace(anchor,`    const limit=window.__lxFoliaPerformance?.backgroundFps||30;
+    if(this.currentSpeed!==0&&!this.resolutionChanged&&this.lastRenderTime&&currentTime-this.lastRenderTime<1000/limit-.5){this.requestRender();return;}
+`+anchor),loader:'js'};
+    });
     build.onLoad({filter: /sonnet[\\/](sonnetGlyphLayout|sonnetTextViewBuilder|sonnetShotFrame)\.ts$/}, args => {
       let text = fs.readFileSync(args.path, 'utf8').replace(/\r\n/g, '\n');
       const replaceOnce = (needle, replacement) => {

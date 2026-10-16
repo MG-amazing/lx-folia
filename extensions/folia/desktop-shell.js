@@ -50,6 +50,7 @@ function apply(settings) {
  $('size').value=config.fontScale;$('pin').checked=config.pin;$('translation').checked=config.showTranslation;$('motion').checked=config.reduceMotion;$('background-url').value=config.url;
  for(const button of $('effect-grid').children)button.setAttribute('aria-pressed',String(button.dataset.mode===config.mode));
  document.querySelector('.url-label').hidden=config.background!=='url';
+ $('quality').value=config.quality||'smooth';$('background-fps').value=config.backgroundFps||30;
  updateStudio();
  renderTimeline();sendDocument();
 }
@@ -108,7 +109,17 @@ function keys(event){
  reveal();
 }
 let chromeTimer;
-function reveal(){document.body.classList.remove('chrome-hidden');clearTimeout(chromeTimer);chromeTimer=setTimeout(()=>{if($('effect-panel').hidden&&!document.querySelector('#dock:hover,#dock:focus-within,header:hover,header:focus-within'))document.body.classList.add('chrome-hidden');},3200);}
+let chromePointerHeld=false,chromeSelectOpen=false;
+function hideChromeWhenIdle(){
+ if(!document.getElementById('effect-panel').hidden||chromePointerHeld||chromeSelectOpen){chromeTimer=setTimeout(hideChromeWhenIdle,500);return;}
+ document.body.classList.add('chrome-hidden');
+}
+function reveal(){document.body.classList.remove('chrome-hidden');clearTimeout(chromeTimer);chromeTimer=setTimeout(hideChromeWhenIdle,4200);}
+function chromePointerStart(event){chromePointerHeld=true;chromeSelectOpen=event.target?.tagName==='SELECT';reveal();}
+function chromePointerEnd(){chromePointerHeld=false;reveal();}
+function chromeSelectionDone(){chromeSelectOpen=false;reveal();}
+function bindChromeActivity(target){target.addEventListener('pointermove',reveal);target.addEventListener('pointerdown',chromePointerStart);target.addEventListener('pointerup',chromePointerEnd);target.addEventListener('pointercancel',chromePointerEnd);target.addEventListener('change',chromeSelectionDone);target.addEventListener('focusout',chromeSelectionDone);target.addEventListener('keydown',event=>{if(['Escape','Enter','Tab'].includes(event.key))chromeSelectOpen=false;reveal();});}
+
 // Compact Folia-style cover/control panel. The full picker remains one click away.
 const catalogPane=document.createElement('section');catalogPane.id='studio-catalog';
 for(const child of Array.from($('effect-panel').children))catalogPane.appendChild(child);
@@ -137,9 +148,11 @@ $('effect-prev').onclick=()=>cycle('mode',window.FoliaCatalog.effects,-1);$('eff
 $('latent-display').onchange=e=>save({latentDisplay:e.target.value});$('studio-calm').onchange=e=>save({reduceMotion:e.target.checked});for(const button of document.querySelectorAll('[data-palette]'))button.onclick=()=>save({palette:button.dataset.palette});
 $('effects-open').onclick=()=>{setPanel($('effect-panel').hidden);if(!$('effect-panel').hidden)showControls();};
 const back=document.createElement('button');back.type='button';back.className='studio-back';back.textContent='‹ 返回控制面板';back.onclick=showControls;catalogPane.prepend(back);
-document.addEventListener('pointermove',reveal);document.addEventListener('keydown',keys);
-frame.addEventListener('load',()=>{try{frame.contentDocument.addEventListener('pointermove',reveal);frame.contentDocument.addEventListener('keydown',keys);}catch{}});
+bindChromeActivity(document);document.addEventListener('keydown',keys);
+frame.addEventListener('load',()=>{try{bindChromeActivity(frame.contentDocument);frame.contentDocument.addEventListener('keydown',keys);}catch{}});
 $('titlebar').addEventListener('dblclick',event=>{if(!event.target.closest('button'))window.lxStage.transport('maximize');});reveal();
 
 window.FoliaUI.observe(document.body);
 window.addEventListener('folia-locale',()=>{for(const key of ['mode','background'])for(const option of $(key).options){const item=window.FoliaCatalog[key==='mode'?'effects':'backgrounds'].find(e=>e.id===option.value);if(item)option.textContent=`${window.FoliaUI.label(item)} · ${item.id}`;}for(const button of $('effect-grid').children){const item=window.FoliaCatalog.effects.find(e=>e.id===button.dataset.mode);button.querySelector('strong').textContent=window.FoliaUI.label(item);}updateStudio();});
+
+$('quality').onchange=e=>save({quality:e.target.value});$('background-fps').onchange=e=>save({backgroundFps:Number(e.target.value)});

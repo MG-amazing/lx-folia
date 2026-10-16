@@ -44,3 +44,7 @@ node --test extensions/folia/convert.test.cjs extensions/folia/locale.test.cjs e
 LX 原始源码：lyswhut/lx-music-desktop，v2.12.6，Apache-2.0，原许可证保留为 `LICENSE.LX`。
 Folia：chthollyphile/folia-major，commit 7701347918a4177c1c57b538d7556db9606be67a，AGPL-3.0；渲染器、集成改动及其完整对应源码按 AGPL-3.0 提供。参见根目录 LICENSE、extensions/folia/NOTICE.txt 以及 renderer-source 中的上游声明。
 音源脚本保留各自原始头部和许可声明。
+
+## v0.1.1 修正
+
+播放时静止约5秒后控制栏与进度条完全淡出，移动恢复；暂停显示。放大 Pendolo / Cappella / Still 的歌词，提升翻译对比度。流畅优先降低背景像素预算、关闭 Tempera 全屏后处理，背景帧率可选30/60。保留真实逐字时间；逐行歌词不再拆成重叠的伪单词。换歌立即清除上一首渲染器，避免原组件等待新歌词时暂留旧内容。

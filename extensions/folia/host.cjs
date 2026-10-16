@@ -8,8 +8,10 @@ const MODES = ['sonnet', 'classic', 'tilt', 'cadenza', 'lumiere', 'claddagh', 'p
 exports.install = function install({ app, BrowserWindow, ipcMain, net }) {
   let main = null; let stage = null; let latestDocument = null; let latestClock = null; let coverKey = '';
   const settingsFile = () => path.join(app.getPath('userData'), 'folia-stage.json');
-  let settings = { mode: 'classic', fontScale: .7, pin: false, palette: 'cover', font: 'sans', showTranslation: true, reduceMotion: false, blur: 0, dim: .25, background: 'latent', latentDisplay:'both', url: '' };
+  let settings = { mode: 'classic', fontScale: 1.2, quality:'smooth',backgroundFps:30, pin: false, palette: 'cover', font: 'sans', showTranslation: true, reduceMotion: false, blur: 0, dim: .25, background: 'latent', latentDisplay:'both', url: '' };
   const validate = patch => {
+    if(['smooth','high'].includes(patch.quality))settings.quality=patch.quality;
+    if([30,60].includes(patch.backgroundFps))settings.backgroundFps=patch.backgroundFps;
     if(patch.mode==='particles')patch={...patch,mode:'lumiere'};
     if (MODES.includes(patch.mode)) settings.mode = patch.mode;
     if (Number.isFinite(patch.fontScale) && patch.fontScale >= .6 && patch.fontScale <= 1.8) settings.fontScale = patch.fontScale;

@@ -303,7 +303,7 @@ const LatentBackground: React.FC<LatentBackgroundProps> = ({
                             ? 0
                             : resolveLatentShaderSpeed(tuning.meshSpeed, tuning.meshAudioSpeed, 0, paused)}
                         minPixelRatio={1}
-                        maxPixelCount={MAX_SHADER_PIXELS}
+                        maxPixelCount={(window as any).__lxFoliaPerformance?.pixelBudget||MAX_SHADER_PIXELS}
                         webGlContextAttributes={PAPER_SHADER_CONTEXT_ATTRIBUTES}
                         style={{ width: '100%', height: '100%' }}
                     />
@@ -333,7 +333,7 @@ const LatentBackground: React.FC<LatentBackgroundProps> = ({
                             ? 0
                             : resolveLatentShaderSpeed(tuning.ditheringSpeed, tuning.ditheringAudioSpeed, 0, paused)}
                         minPixelRatio={1}
-                        maxPixelCount={MAX_SHADER_PIXELS}
+                        maxPixelCount={(window as any).__lxFoliaPerformance?.pixelBudget||MAX_SHADER_PIXELS}
                         webGlContextAttributes={PAPER_SHADER_CONTEXT_ATTRIBUTES}
                         style={{ width: '100%', height: '100%' }}
                     />
