@@ -16,5 +16,5 @@ exports.install=({app})=>{
     fs.writeFileSync(sourceFile,JSON.stringify({userApis:sources}));
   }
   const config=path.join(dir,'config_v2.json');
-  if(!fs.existsSync(config))fs.writeFileSync(config,JSON.stringify({version:'2.1.0',setting:{version:'2.1.0','common.langId':'ja-jp','common.apiSource':'user_api_lx_folia_stellar','common.windowSizeId':4,'download.enable':true,'download.savePath':path.join(app.getPath('music'),'LX-Folia'),'download.isDownloadLrc':true,'download.isDownloadLxLrc':true,'download.isDownloadTLrc':true,'download.isEmbedPic':true,'download.isEmbedLyric':true}}));
+  if(!fs.existsSync(config))fs.writeFileSync(config,JSON.stringify({version:'2.1.0',setting:{version:'2.1.0','common.langId':'ja-jp','common.apiSource':'user_api_lx_folia_stellar','common.windowSizeId':5,'download.enable':true,'download.savePath':path.join(app.getPath('music'),'LX-Folia'),'download.isDownloadLrc':true,'download.isDownloadLxLrc':true,'download.isDownloadTLrc':true,'download.isEmbedPic':true,'download.isEmbedLyric':true}}));
 };

@@ -7,7 +7,7 @@ const isWin = process.platform == 'win32'
 const defaultSetting: LX.AppSetting = {
   version: '2.1.0',
 
-  'common.windowSizeId': 3,
+  'common.windowSizeId': 5,
   'common.fontSize': 16,
   'common.startInFullscreen': false,
   'common.langId': 'ja-jp',

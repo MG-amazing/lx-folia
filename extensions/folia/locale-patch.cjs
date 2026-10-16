@@ -7,6 +7,7 @@ exports.patch=(scratch)=>{
   if(!file.endsWith('.js'))continue;const target=path.join(scratch,'dist',file);let text=fs.readFileSync(target,'utf8');
   const anchor='{name:"English",locale:"en-us",country:"us",message:';
   if(text.includes(anchor)){if(text.split(anchor).length!==2)throw Error('Ambiguous locale registry: '+file);text=text.replace(anchor,'{name:"日本語",locale:"ja-jp",country:"jp",message:'+JSON.stringify(ja)+'},'+anchor);translated++;}
+  text=text.replaceAll('"common.windowSizeId":3','"common.windowSizeId":5').replaceAll("'common.windowSizeId': 3","'common.windowSizeId': 5");
   text=text.replaceAll('"common.langId":null','"common.langId":"ja-jp"');
   const trayAnchor=/('en-us':\s*\{\s*collect: 'Love',)/;
   if(trayAnchor.test(text)){text=text.replace(trayAnchor,()=>"'ja-jp':"+JSON.stringify(tray)+",\n    'en-us': {\n        collect: 'Love',");trays++;}
