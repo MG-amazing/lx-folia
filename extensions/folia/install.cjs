@@ -33,12 +33,13 @@ async function install() {
     if([...renderer.matchAll(init)].length!==1)throw Error('Unexpected advanced audio initialization; archive unchanged');
     renderer=renderer.replace(init,'$1=window.__lxFoliaStartAnalyser=()=>{if($2)return;if(!$3)throw new Error("audio not defined");');
   }
+  renderer=require('./lyric-api-patch.cjs').patch(renderer);
   fs.writeFileSync(rendererFile, renderer);
   const mainFile = path.join(scratch, 'dist/main.js'); let main = fs.readFileSync(mainFile, 'utf8');
   if (!main.includes('/* LX_FOLIA_EXTENSION */')) main += '\n/* LX_FOLIA_EXTENSION */\nrequire("./folia/host.cjs").install(require("electron"));\n';
   fs.writeFileSync(mainFile, main);
   const target = path.join(scratch, 'dist/folia'); fs.mkdirSync(target, { recursive: true });
-  for (const name of ['ui-i18n.js', 'host.cjs', 'preload.cjs', 'source-bridge.cjs', 'skin.cjs', 'skin.css', 'convert.cjs', 'shell.js', 'desktop-shell.js', 'shell.css', 'folia-colors.js', 'folia-catalog.js', 'index.html', 'stage.html', 'renderer-manifest.json', 'FOLIA-AGPL-3.0.txt', 'NOTICE.txt']) fs.copyFileSync(path.join(__dirname, name), path.join(target, name));
+  for (const name of ['word-lyrics.cjs', 'ui-i18n.js', 'host.cjs', 'preload.cjs', 'source-bridge.cjs', 'skin.cjs', 'skin.css', 'convert.cjs', 'shell.js', 'desktop-shell.js', 'shell.css', 'folia-colors.js', 'folia-catalog.js', 'index.html', 'stage.html', 'renderer-manifest.json', 'FOLIA-AGPL-3.0.txt', 'NOTICE.txt']) fs.copyFileSync(path.join(__dirname, name), path.join(target, name));
   require('./locale-patch.cjs').patch(scratch);
   const next = archive + '.folia-next'; await asar.createPackage(scratch, next);
   const backup = archive + '.before-folia-' + new Date().toISOString().replace(/[:.]/g, '-') + '.bak';

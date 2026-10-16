@@ -6,6 +6,7 @@ import {
   // saveOtherSource as saveOtherSourceFromStore,
   getMusicUrl as getStoreMusicUrl,
   getPlayerLyric as getStoreLyric,
+  saveLyric as savePreferredLyric,
 } from '@renderer/utils/ipc'
 import { appSetting } from '@renderer/store/setting'
 import { langS2T, toNewMusicInfo, toOldMusicInfo } from '@renderer/utils'
@@ -513,4 +514,11 @@ export const handleGetOnlineLyricInfo = async({ musicInfo, onToggleSource, isRef
       throw err
     })
   })
+}
+
+// LX Folia uses the same first-party SDK and cache for word-timed lyric upgrades.
+;(window as Window & { __lxFoliaLyricApi?: unknown }).__lxFoliaLyricApi = {
+  findOther: getOtherSource,
+  fetch: async(musicInfo: LX.Music.MusicInfoOnline) => (await handleGetOnlineLyricInfo({ musicInfo, onToggleSource: () => {}, isRefresh: true, allowToggleSource: false })).lyricInfo,
+  save: savePreferredLyric,
 }

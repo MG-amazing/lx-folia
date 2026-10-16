@@ -14,8 +14,14 @@ function parseRows(raw) {
   }
   return rows.sort((a, b) => a.time - b.time).slice(0, 5000);
 }
+function wordQuality(raw){
+ let timedLines=0,words=0,chars=0,cjkChars=0;const rows=parseRows(raw);
+ for(const row of rows){let last=-1,valid=0;for(const m of row.text.matchAll(/<(\d+),(\d+)>([^<]*)/g)){const start=Number(m[1]),length=Number(m[2]);if(start<last)return {usable:false,timedLines:0,words:0,rows:rows.length};last=start;if(length>0&&m[3].trim()){valid++;chars+=m[3].trim().length;cjkChars+=(m[3].match(/[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/gu)||[]).length;}}if(valid>=2){timedLines++;words+=valid;}}
+ const usable=timedLines>=1&&words>=2&&timedLines/Math.max(1,rows.length)>=.35;return {usable,detailed:usable&&(cjkChars<chars*.5||words/Math.max(1,cjkChars)>=.6),timedLines,words,chars,rows:rows.length};
+}
+
 function buildLines(info, duration = 0) {
-  const rows = parseRows(info.lxlrc || info.lrc || info.rawlrc);
+  const rows = parseRows(wordQuality(info.lxlrc).usable ? info.lxlrc : info.lrc || info.rawlrc || info.lxlrc);
   const translations = parseRows(info.tlrc);
   let wordTimed = false;
   const lines = rows.map((row, index) => {
@@ -43,4 +49,5 @@ function makeDocument(info, audio = {}, seq = 1) {
     position: Math.max(0, Number(audio.currentTime) || 0), playing: !audio.paused && Number(audio.readyState) >= 3 && !audio.seeking,
   };
 }
-module.exports = { parseRows, buildLines, makeDocument };
+module.exports = { parseRows, buildLines, makeDocument, wordQuality };
+
