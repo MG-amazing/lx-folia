@@ -1,3 +1,4 @@
+import {setSubtitleChromeHidden} from './adapters/playerBottomBar';
 // WebView side of the RN <-> Folia bridge. Protocol and validation are shared with the app in
 // src/music/foliaBridge.ts; this file only wires window globals.
 import { FOLIA_PROTOCOL, parseFoliaInbound, type FoliaInbound, type FoliaOutbound } from '../../../src/music/foliaBridge';
@@ -20,6 +21,7 @@ export const installBridge = (onMessage: (message: FoliaInbound) => void) => {
     if (typeof raw === 'string') {
       try { data = JSON.parse(raw); } catch { post({ type: 'error', message: 'invalid json' }); return; }
     }
+    if ((data as any)?.type === 'chrome' && typeof (data as any).hidden === 'boolean') {setSubtitleChromeHidden((data as any).hidden);return;}
     if ((data as any)?.type === 'audio') { onMessage(data as any); return; }
     const message = parseFoliaInbound(data);
     if (message?.type === 'document') (message as any).desktop = (data as any).desktop;

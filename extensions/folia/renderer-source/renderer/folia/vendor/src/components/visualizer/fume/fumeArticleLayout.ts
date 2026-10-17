@@ -1,3 +1,4 @@
+import {fumeLayoutBudget} from '../../../../../src/adapters/fumePolicy';
 import { FumeTuning, Line, Theme } from '../../../types';
 import { resolveThemeFontStack } from '../../../utils/fontStacks';
 import { getLineRenderEndTime } from '../../../utils/lyrics/renderHints';
@@ -152,6 +153,7 @@ export const buildLayoutCacheKey = (
     }
 
     return [
+        (window as any).__lxFoliaPerformance?.quality||'smooth',
         Math.round(viewport.width),
         Math.round(viewport.height),
         layoutTheme.fontStyle,
@@ -474,14 +476,15 @@ export const buildArticleLayout = (
 
     // Try a few column counts and density scales, then keep the article that lands closest to the target height.
     // This is why the mode feels "composed" instead of hardcoding one layout recipe for every song.
-    for (let columns = maxColumns; columns >= 1; columns -= 1) {
+    const budget=fumeLayoutBudget((window as any).__lxFoliaPerformance?.quality||'smooth');
+    for (let columns = maxColumns; columns >= Math.max(1,maxColumns-budget.columns+1); columns -= 1) {
         let low = 0.82;
         let high = 1.42;
         const gap = clamp(Math.round(paperWidth * (columns >= 4 ? 0.0065 : columns === 3 ? 0.0085 : 0.0115)), 6, 14);
         const columnTiming = createFumeLayoutTiming();
         measureColumnTimings.set(columns, columnTiming);
 
-        for (let iteration = 0; iteration < 8; iteration += 1) {
+        for (let iteration = 0; iteration < budget.density; iteration += 1) {
             const densityScale = (low + high) / 2;
             measureAttemptCount += 1;
             const attemptOptions: FumeLayoutAttemptOptions & { mode: 'measure' } = {
@@ -539,6 +542,7 @@ export const buildArticleLayout = (
     const renderMs = nowMs() - renderStart;
     const totalMs = nowMs() - totalStart;
 
+    (window as any).__lxFumeDiagnostics = {...(window as any).__lxFumeDiagnostics,layoutMs:roundMs(totalMs),attempts:measureAttemptCount,blocks:article?.blocks.length||0};
     if (import.meta.env.DEV) {
         console.info('[VisualizerFume] layout timing', {
             totalMs: roundMs(totalMs),

@@ -1,3 +1,5 @@
+import {resolveFocusBlock} from './fumeCamera';
+import {fumeBlockCenter,fumeFitScale,fumePixelScale} from '../../../../../src/adapters/fumePolicy';
 import { useEffect, useRef, type RefObject } from 'react';
 import { drawFumeBackground } from '../FumeBackground';
 import { isGlowBlurQuantized } from '../../../utils/glowBlurQuantize';
@@ -72,7 +74,8 @@ export const useFumeCanvasStage = (
 
         const width = Math.max(Math.floor(viewport.width), 1);
         const height = Math.max(Math.floor(viewport.height), 1);
-        const dpr = window.devicePixelRatio || 1;
+        const quality=(window as any).__lxFoliaPerformance?.quality||'smooth';
+        const dpr = fumePixelScale(width,height,window.devicePixelRatio||1,quality);
 
         if (canvas.width !== Math.floor(width * dpr) || canvas.height !== Math.floor(height * dpr)) {
             canvas.width = Math.floor(width * dpr);
@@ -87,6 +90,7 @@ export const useFumeCanvasStage = (
         syncFumeCameraToArticle(cameraState, article);
         let frameId = 0;
         let lastFrameAt: number | null = null;
+        let previousTime:number|null=null;
 
         const draw = () => {
             const now = performance.now();
@@ -97,7 +101,7 @@ export const useFumeCanvasStage = (
 
             const currentWidth = Math.max(Math.floor(viewport.width), 1);
             const currentHeight = Math.max(Math.floor(viewport.height), 1);
-            const currentDpr = window.devicePixelRatio || 1;
+            const currentDpr = fumePixelScale(currentWidth,currentHeight,window.devicePixelRatio||1,quality);
 
             if (canvas.width !== Math.floor(currentWidth * currentDpr) || canvas.height !== Math.floor(currentHeight * currentDpr)) {
                 canvas.width = Math.floor(currentWidth * currentDpr);
@@ -110,12 +114,20 @@ export const useFumeCanvasStage = (
             context.clearRect(0, 0, currentWidth, currentHeight);
 
             const time = currentTime.get();
+            if(article&&(previousTime===null||Math.abs(time-previousTime)>2)){
+                const block=resolveFocusBlock(article,-1,time);
+                if(block){const center=fumeBlockCenter(block),scale=fumeFitScale(block,viewport);
+                    Object.assign(cameraState.camera,{...center,focusX:center.x,focusY:center.y,scale,focusScale:scale,velocityX:0,velocityY:0,velocityScale:0});
+                    cameraState.retarget.sourceLineIndex=block.sourceLineIndex;
+                }
+            }
+            previousTime=time;
             const viewportCenterX = viewport.width * 0.5;
             const viewportCenterY = viewport.height * 0.5;
             const fumeBackgroundAudioLevels = readFumeAudioLevels(driver);
 
             if (!article) {
-                if (!staticMode) {
+                if (!staticMode && backgroundObjectOpacity > 0) {
                     context.save();
                     context.translate(viewportCenterX, viewportCenterY);
                     context.translate(-backgroundScene.width * 0.5, -backgroundScene.height * 0.5);
@@ -160,7 +172,7 @@ export const useFumeCanvasStage = (
 
             const screenScale = camera.scale;
 
-            if (!staticMode) {
+            if (!staticMode && backgroundObjectOpacity > 0) {
                 const {
                     backgroundCenterX,
                     backgroundCenterY,
@@ -207,11 +219,11 @@ export const useFumeCanvasStage = (
                 snapshotScale: clamp(window.devicePixelRatio || 1, 1, 2),
             };
 
-            const rasterLive = isGlowBlurQuantized();
+            const rasterLive = quality==='smooth'||isGlowBlurQuantized();
             // A little margin so glyphs entering the screen are already drawn.
             const margin = 32 / screenScale;
             const liveFrame = {
-                deviceScale: screenScale * (window.devicePixelRatio || 1),
+                deviceScale: screenScale * currentDpr,
                 visible: {
                     left: camera.x - viewportCenterX / screenScale - margin,
                     top: camera.y - viewportCenterY / screenScale - margin,
@@ -270,6 +282,11 @@ export const useFumeCanvasStage = (
                 }
             }
             context.restore();
+            const stats=(window as any).__lxFumeDiagnostics;
+            if(stats){stats.drawMs=performance.now()-now;stats.pixelScale=currentDpr;
+                const block=resolveFocusBlock(article,-1,time);
+                if(block){stats.activeBounds={left:viewportCenterX+(block.x-camera.x)*screenScale,right:viewportCenterX+(block.x+block.width-camera.x)*screenScale,top:viewportCenterY+(block.y-camera.y)*screenScale,bottom:viewportCenterY+(block.y+block.height-camera.y)*screenScale};}
+            }
             liveRaster.sweep(now);
             releaseSnapshots(staticBlockSnapshotCacheRef.current, now);
 

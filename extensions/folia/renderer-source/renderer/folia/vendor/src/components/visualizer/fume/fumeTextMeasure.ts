@@ -1,3 +1,4 @@
+import {fumeLayoutBudget} from '../../../../../src/adapters/fumePolicy';
 import { layoutWithLines, prepareWithSegments, type PreparedTextWithSegments, type LayoutCursor, type PrepareOptions } from '@chenglou/pretext';
 import { Theme } from '../../../types';
 import { resolveThemeFontWeight } from '../../../utils/fontStacks';
@@ -257,7 +258,7 @@ export const buildPreparedSingleLine = (
 
     // Fume really wants most blocks to stay single-line when possible.
     // So do a tiny binary search for a font size that still fits before falling back.
-    for (let iteration = 0; iteration < 8; iteration += 1) {
+    for (let iteration = 0; iteration < fumeLayoutBudget((window as any).__lxFoliaPerformance?.quality||'smooth').font; iteration += 1) {
         const candidateFontPx = ((low + high) / 2)
             * lyricsFontScale
             * densityScale

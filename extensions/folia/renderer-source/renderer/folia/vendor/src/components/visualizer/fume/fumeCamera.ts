@@ -1,3 +1,4 @@
+import {fumeFitScale} from '../../../../../src/adapters/fumePolicy';
 import { Line } from '../../../types';
 import { getLineRenderHints, getLineTransitionTiming } from '../../../utils/lyrics/renderHints';
 import type { CameraViewTarget, FumeArticleLayout, FumeBlock, ViewportSize } from './fumeTypes';
@@ -143,9 +144,7 @@ export const resolveCameraScaleForBlock = (
     block: FumeBlock,
     viewport: ViewportSize,
 ) => {
-    const minViewportSide = Math.max(Math.min(viewport.width, viewport.height), 1);
-    const targetLineHeight = clamp(minViewportSide * 0.115, 64, 124);
-    return clamp(targetLineHeight / Math.max(block.lineHeight, 1), 0.88, 2.2);
+    return fumeFitScale(block,viewport);
 };
 
 export const resolveCameraRetargetDuration = (line: Line) => {
@@ -312,7 +311,7 @@ export const resolveFocusBlock = (
 ) => {
     if (currentLineIndex >= 0) {
         const active = article.blockBySourceLineIndex.get(currentLineIndex) ?? null;
-        if (active) {
+        if (active && currentTimeValue >= active.line.startTime && currentTimeValue <= active.line.endTime) {
             return active;
         }
     }

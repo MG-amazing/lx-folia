@@ -68,7 +68,7 @@ for(const option of Array.from($('mode').options).slice(0,9))option.remove();
 window.addEventListener('message',event=>{
  if(event.source!==frame.contentWindow)return;
  try{const data=typeof event.data==='string'?JSON.parse(event.data):event.data;
-  if(data.type==='ready'){ready=true;sendDocument();forward({type:'p',...clock});}
+  if(data.type==='ready'){ready=true;sendDocument();forward({type:'p',...clock});forward({type:'chrome',hidden:document.body.classList.contains('chrome-hidden')});}
   if(data.type==='lyric-seek'&&Number.isFinite(data.time))seek(data.time);
   if(data.type==='error'||data.type==='failed'){diagnostics.errors.push(data.message);$('status').textContent='效果提示：'+data.message;}
  }catch{}
@@ -156,3 +156,6 @@ window.FoliaUI.observe(document.body);
 window.addEventListener('folia-locale',()=>{for(const key of ['mode','background'])for(const option of $(key).options){const item=window.FoliaCatalog[key==='mode'?'effects':'backgrounds'].find(e=>e.id===option.value);if(item)option.textContent=`${window.FoliaUI.label(item)} · ${item.id}`;}for(const button of $('effect-grid').children){const item=window.FoliaCatalog.effects.find(e=>e.id===button.dataset.mode);button.querySelector('strong').textContent=window.FoliaUI.label(item);}updateStudio();});
 
 $('quality').onchange=e=>save({quality:e.target.value});$('background-fps').onchange=e=>save({backgroundFps:Number(e.target.value)});
+
+// Chrome visibility only moves subtitles; it must not rebuild the lyric document.
+new MutationObserver(()=>forward({type:'chrome',hidden:document.body.classList.contains('chrome-hidden')})).observe(document.body,{attributes:true,attributeFilter:['class']});

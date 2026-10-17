@@ -320,7 +320,7 @@ const VisualizerFume: React.FC<VisualizerProps> = (props) => {
                             scale: article && showText ? (hasPrintedContent ? 1 : 0.985) : 1,
                         }}
                         transition={{ duration: 0.45, ease: 'easeOut' }}
-                        className="absolute left-1/2 top-0 -translate-x-1/2"
+                        className="absolute inset-0"
                         style={{
                             width: viewport.width,
                             height: viewport.height,

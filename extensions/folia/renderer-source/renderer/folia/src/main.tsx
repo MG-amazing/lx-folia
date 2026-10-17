@@ -34,7 +34,7 @@ import {attachFoliaInterludes, findFoliaTimelineLine} from '../../../src/music/f
 import VisualizerLumiere from '../vendor/src/components/visualizer/lumiere/VisualizerLumiere';
 import {providerTimedLine} from './adapters/providerGraphemes';
 import {fitLyricScale} from './fitLyrics';
-import { DEFAULT_SONNET_TUNING, DEFAULT_TEMPERA_TUNING, DEFAULT_LUMIERE_TUNING, DEFAULT_LATENT_BACKGROUND_TUNING, type AudioBands, type Line, type SonnetTuning } from '../vendor/src/types';
+import { DEFAULT_SONNET_TUNING, DEFAULT_FUME_TUNING, DEFAULT_TEMPERA_TUNING, DEFAULT_LUMIERE_TUNING, DEFAULT_LATENT_BACKGROUND_TUNING, type AudioBands, type Line, type SonnetTuning } from '../vendor/src/types';
 import { annotateLyricLines } from '../vendor/src/utils/lyrics/renderHints';
 import { installBridge, post } from './bridge';
 import { ShellOptionsContext } from './Shell';
@@ -88,7 +88,8 @@ const App: React.FC = () => {
     });
   }, [currentTime]);
 
-  const lines = useMemo<Line[]>(() => (doc ? annotateLyricLines(attachFoliaInterludes(doc.lines).map(providerTimedLine)) : []), [doc]);
+  const lineVersion=useMemo(()=>JSON.stringify(doc?.lines||[]),[doc?.lines]);
+  const lines = useMemo<Line[]>(() => (doc ? annotateLyricLines(attachFoliaInterludes(doc.lines).map(providerTimedLine)) : []), [doc?.trackKey,lineVersion]);
 
   // Playback clock: the real native position arrives 10 Hz; between packets it advances by wall clock, bounded.
   useEffect(() => {
@@ -123,7 +124,7 @@ const App: React.FC = () => {
   (window as any).__foliaDiagnostics = {mode: doc.mode, lineIndex, background: (doc as any).desktop?.background || "common", playing, lines: lines.length,fontScale:fittedScale,viewport,characterEntrance:true,activeWords:activeAtoms.length};
   const scene = doc.mode;
   const desktop = (doc as any).desktop || {};
-  (window as any).__lxFoliaPerformance={backgroundFps:desktop.backgroundFps||30,pixelBudget:desktop.quality==='high'?1280*720:640*360};
+  (window as any).__lxFoliaPerformance={quality:desktop.quality||'smooth',backgroundFps:desktop.backgroundFps||30,pixelBudget:desktop.quality==='high'?1280*720:640*360};
 
   const Renderer = ({classic: VisualizerClassic, tilt: VisualizerTilt, cadenza: VisualizerCadenza, claddagh: VisualizerCladdagh, pendolo: VisualizerPendolo, cappella: VisualizerCappella, diorama: VisualizerDiorama, sonnet: VisualizerSonnet, lumiere: VisualizerLumiere, particles: VisualizerLumiere, fume: VisualizerFume, monet: VisualizerMonet, partita: VisualizerPartita, still: VisualizerStill, tempera: VisualizerTempera} as const)[scene as 'sonnet'] || VisualizerClassic;
   const theme = reduceMotion ? { ...doc.theme, animationIntensity: 'calm' as const } : doc.theme;
@@ -142,7 +143,7 @@ const App: React.FC = () => {
           </SceneBoundary>
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{backgroundColor:`rgba(0,0,0,${desktop.dim ?? .35})`}}/>
-        {<SceneBoundary key={`${scene}:${doc.trackKey}`} fallback={<AmbientCredits doc={doc} cover={cover} paused={!playing} reduceMotion={reduceMotion} />}><Renderer
+        {<SceneBoundary key={`${scene}:${doc.trackKey}:${desktop.quality||'smooth'}`} fallback={<AmbientCredits doc={doc} cover={cover} paused={!playing} reduceMotion={reduceMotion} />}><Renderer
           currentTime={currentTime}
           currentLineIndex={lineIndex}
           lines={lines}
@@ -159,6 +160,7 @@ const App: React.FC = () => {
           lyricsFontScale={fittedScale}
           sonnetTuning={tuning}
           temperaTuning={{...DEFAULT_TEMPERA_TUNING,wholeLineLyrics:false,textureResolution:desktop.quality==='high'?Math.min(devicePixelRatio,2):1,postProcessEnabled:desktop.quality==='high',postProcessTextureCompression:true}}
+          fumeTuning={desktop.quality==='high'?undefined:{...DEFAULT_FUME_TUNING,disableGeometricBackground:true,backgroundObjectOpacity:0,glowIntensity:.22,hidePrintSymbols:true}}
           lumiereTuning={{...DEFAULT_LUMIERE_TUNING, trails: true, textBloom: 0.5, bloom: 0.75, lightIntensity: 0.85, echo: 0.7, unlitOpacity: 0.3}}
           hideTranslationSubtitle={desktop.showTranslation === false}
           showSubtitleTranslation={desktop.showTranslation !== false}

@@ -1,3 +1,4 @@
+import {fumeBlockCenter} from '../../../../../src/adapters/fumePolicy';
 import type { Theme } from '../../../types';
 import type { FumeBackgroundScene } from '../FumeBackground';
 import type { CameraRetargetState, CameraTarget, CameraViewTarget, FumeArticleLayout, ViewportSize } from './fumeTypes';
@@ -130,28 +131,9 @@ export const stepFumeCamera = (state: FumeCameraState, input: FumeCameraStepInpu
             didRetargetThisFrame = true;
         }
     } else if (focusBlock) {
-        const focusPoint = cameraTrackingMode === 'stepped'
-            ? resolveSteppedBlockFocusPoint(
-                focusBlock,
-                resolvePrintedGraphemeCount(
-                    focusBlock.line,
-                    focusBlock.wordRanges,
-                    focusBlock.graphemes.length,
-                    time,
-                ),
-            )
-            : resolveSmoothBlockFocusPoint(
-                focusBlock,
-                resolvePrintedGraphemeProgress(
-                    focusBlock.line,
-                    focusBlock.wordRanges,
-                    focusBlock.graphemes.length,
-                    time,
-                ),
-            );
-        entryFocusPoint = resolveBlockEntryFocusPoint(focusBlock);
-        targetCameraX = focusPoint.x;
-        targetCameraY = focusPoint.y;
+        entryFocusPoint = fumeBlockCenter(focusBlock);
+        targetCameraX = fumeBlockCenter(focusBlock).x;
+        targetCameraY = fumeBlockCenter(focusBlock).y;
         targetCameraScale = resolveCameraScaleForBlock(focusBlock, viewport);
 
         if (state.retarget.sourceLineIndex !== focusBlock.sourceLineIndex) {
