@@ -121,8 +121,10 @@ const App: React.FC = () => {
   const fittedScale = ['pendolo','cappella','still'].includes(doc.mode)
     ? Math.min(doc.fontScale * (doc.mode==='pendolo'?1.6:1.25),viewport.width<800?1.8:2.5)
     : ['tempera','fume','sonnet'].includes(doc.mode) ? doc.fontScale : fitLyricScale(doc.fontScale,viewport.width,viewport.height,activeAtoms);
-  (window as any).__foliaDiagnostics = {mode: doc.mode, lineIndex, background: (doc as any).desktop?.background || "common", playing, lines: lines.length,fontScale:fittedScale,viewport,characterEntrance:true,activeWords:activeAtoms.length};
+  (window as any).__foliaDiagnostics = {mode: doc.mode, lineIndex, background: (doc as any).desktop?.background || "common", playing, lines: lines.length,fontScale:fittedScale,viewport,characterEntrance:doc.timing==='word',activeWords:activeAtoms.length};
   const scene = doc.mode;
+  const activeLyric = lines[lineIndex];
+  const showLyrics = (activeLyric as any)?.wordTimed === true && !!activeLyric?.fullText?.trim() && !String(activeLyric.id).startsWith('interlude-');
   const desktop = (doc as any).desktop || {};
   (window as any).__lxFoliaPerformance={quality:desktop.quality||'smooth',backgroundFps:desktop.backgroundFps||30,pixelBudget:desktop.quality==='high'?1280*720:640*360};
 
@@ -143,6 +145,7 @@ const App: React.FC = () => {
           </SceneBoundary>
         </div>
         <div className="absolute inset-0 pointer-events-none" style={{backgroundColor:`rgba(0,0,0,${desktop.dim ?? .35})`}}/>
+        <div className="absolute inset-0" data-lyrics-visible={String(showLyrics)} style={{opacity:showLyrics?1:0,transition:'opacity 200ms',pointerEvents:showLyrics?'auto':'none'}} aria-hidden={!showLyrics}>
         {<SceneBoundary key={`${scene}:${doc.trackKey}:${desktop.quality||'smooth'}`} fallback={<AmbientCredits doc={doc} cover={cover} paused={!playing} reduceMotion={reduceMotion} />}><Renderer
           currentTime={currentTime}
           currentLineIndex={lineIndex}
@@ -173,6 +176,7 @@ const App: React.FC = () => {
           isPlayerChromeHidden
           background={{ transparent: true }}
         /></SceneBoundary>}
+        </div>
       </div>
     </ShellOptionsContext.Provider>
   );

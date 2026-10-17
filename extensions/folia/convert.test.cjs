@@ -25,3 +25,14 @@ test('playing is false while paused, buffering or seeking', () => {
   assert.equal(makeDocument(info, { paused: true }).playing, false);
 });
 test('empty tracks produce an empty timeline', () => { const doc = makeDocument({}); assert.equal(doc.lines.length, 0); assert.equal(doc.playing, false); });
+
+test('real word endings stop the lyric before an instrumental gap and after the final phrase',()=>{
+ const doc=buildLines({lxlrc:'[00:10]<0,500>你<500,500>好\n[00:30]<0,500>再<500,500>见'},60);
+ assert.equal(doc.lines[0].endTime,11);assert.equal(doc.lines[1].endTime,31);
+});
+test('explicit blank provider timestamps clear lyrics and translations',()=>{
+ const doc=buildLines({lrc:'[00:10]你好\n[00:12]\n[00:30]再见\n[00:32]//',tlrc:'[00:12]stale translation'},60);
+ assert.equal(doc.lines.length,4);assert.equal(doc.lines[0].endTime,12);
+ assert.equal(doc.lines[1].fullText,'');assert.deepEqual(doc.lines[1].words,[]);
+ assert.equal(doc.lines[1].translation,undefined);assert.equal(doc.lines[3].fullText,'');
+});

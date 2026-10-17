@@ -519,6 +519,11 @@ export const handleGetOnlineLyricInfo = async({ musicInfo, onToggleSource, isRef
 // LX Folia uses the same first-party SDK and cache for word-timed lyric upgrades.
 ;(window as Window & { __lxFoliaLyricApi?: unknown }).__lxFoliaLyricApi = {
   findOther: getOtherSource,
+  search: async(source: LX.OnlineSource, musicInfo: LX.Music.MusicInfoOnline) => {
+    if (source === musicInfo.source) return [musicInfo]
+    const result = await musicSdk[source].musicSearch.search(`${musicInfo.name} ${musicInfo.singer}`, 1, 20)
+    return result.list.map(toNewMusicInfo)
+  },
   fetch: async(musicInfo: LX.Music.MusicInfoOnline) => (await handleGetOnlineLyricInfo({ musicInfo, onToggleSource: () => {}, isRefresh: true, allowToggleSource: false })).lyricInfo,
   save: savePreferredLyric,
 }

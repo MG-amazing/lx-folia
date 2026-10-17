@@ -31,9 +31,9 @@ export function attachFoliaInterludes(lines: FoliaLine[]): FoliaLine[] {
 }
 
 /** Keep the selected renderer mounted through intro, breaths and outro. */
-export function findFoliaTimelineLine(lines: Array<{startTime: number}>, time: number): number {
+export function findFoliaTimelineLine(lines: Array<{startTime: number; endTime: number}>, time: number): number {
   for (let index = lines.length - 1; index >= 0; index--) {
-    if (time >= lines[index].startTime) return index;
+    if (time >= lines[index].startTime) return time < lines[index].endTime ? index : -1;
   }
   return -1;
 }
