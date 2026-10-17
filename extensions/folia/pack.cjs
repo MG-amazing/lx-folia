@@ -8,7 +8,8 @@ async function pack(){
  fs.cpSync(runtime,out,{recursive:true,filter:p=>!['data','portable'].includes(path.relative(runtime,p).split(path.sep)[0])&&!/\.bak$|\.folia-next$/.test(p)});
  cp.execFileSync(process.execPath,[path.join(__dirname,'install.cjs'),out,asarPath],{stdio:'inherit'});
  const asar=require(asarPath),archive=path.join(out,'resources/app.asar'),scratch=path.resolve(__dirname,'../../work/folia-branded');
- fs.mkdirSync(scratch,{recursive:true});asar.extractAll(archive,scratch);
+ const workRoot=path.resolve(__dirname,'../../work');if(path.dirname(scratch)!==workRoot)throw Error('Unexpected build scratch directory');
+ fs.rmSync(scratch,{recursive:true,force:true});fs.mkdirSync(scratch,{recursive:true});asar.extractAll(archive,scratch);
  const pkg=JSON.parse(fs.readFileSync(path.join(scratch,'package.json'),'utf8'));pkg.name='lx-folia';pkg.productName='LX Folia';pkg.description='LX Music with the complete Folia lyric and background effects';pkg.homepage='https://github.com/MG-amazing/lx-folia';
  fs.writeFileSync(path.join(scratch,'package.json'),JSON.stringify(pkg,null,2));
  const main=path.join(scratch,'dist/main.js');fs.writeFileSync(main,'/* LX_FOLIA_PROFILE */\nrequire("./folia/bootstrap.cjs").install(require("electron"));\n'+fs.readFileSync(main,'utf8'));

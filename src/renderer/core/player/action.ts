@@ -650,6 +650,12 @@ import ktvMusicSdk from '@renderer/utils/musicSdk'
 import { toNewMusicInfo as ktvToNewMusicInfo } from '@renderer/utils'
 import { addTempPlayList as ktvAddLater } from '@renderer/store/player/action'
 ;(window as any).__lxFoliaKtvNative = {
+  nowPlaying: () => {
+    const m=playMusicInfo.musicInfo,a=(window as any).__lxFoliaAudio
+    return {musicId:m?.id||null,name:_musicInfo.name,singer:_musicInfo.singer,source:m?.source||null,album:_musicInfo.album,
+      state:!m?'stopped':a?.error?'error':a?.paused?'paused':a?.readyState>=3?'playing':'loading',progress:Number.isFinite(a?.currentTime)?a.currentTime:0,
+      duration:Number.isFinite(a?.duration)?a.duration:0,volume:a?.volume??1,muted:!!a?.muted}
+  },
   search: async(q: string,source: string,page: number) => (await (ktvMusicSdk as any)[source].musicSearch.search(q,page,20)).list.map(ktvToNewMusicInfo),
   queue: () => tempPlayList,
   enqueue: (musicInfo: LX.Music.MusicInfo,isTop: boolean) => ktvAddLater([{listId:null,musicInfo,isTop}]),

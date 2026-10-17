@@ -24,3 +24,9 @@ test('KTV next with an empty queue pauses instead of resuming another playlist',
  const c=createController({queue:()=>[],next:()=>{next=true;},pause:()=>{paused=true;}});
  await c.handle('next');assert.equal(paused,true);assert.equal(next,false);
 });
+
+test('reservation status returns current native song and ordered pending reservations together',async()=>{
+ const queue=[{musicInfo:{id:'wy_2',name:'Next',source:'wy'}}];
+ const c=createController({queue:()=>queue,nowPlaying:()=>({musicId:'wy_1',name:'Current',state:'playing',progress:42,duration:200})});
+ const result=await c.handle('status');assert.equal(result.nowPlaying.musicId,'wy_1');assert.equal(result.nowPlaying.progress,42);assert.equal(result.queue[0].musicId,'wy_2');assert.equal(queue.length,1);
+});

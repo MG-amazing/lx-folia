@@ -10,7 +10,9 @@ async function install() {
   if (!fs.existsSync(path.join(app, 'lx-music-desktop.exe'))) throw Error('LX executable not found');
   const packageJson = JSON.parse(asar.extractFile(archive, 'package.json'));
   if (packageJson.version !== '2.12.6') throw Error('This integration targets LX 2.12.6');
-  const scratch = path.join(__dirname, '../../work/folia-app');
+  const workRoot=path.resolve(__dirname,'../../work'),scratch=path.join(workRoot,'folia-app');
+  if(path.dirname(scratch)!==workRoot)throw Error('Unexpected build scratch directory');
+  fs.rmSync(scratch,{recursive:true,force:true});
   fs.mkdirSync(scratch, { recursive: true }); asar.extractAll(archive, scratch);
   const rendererFile = path.join(scratch, 'dist/renderer.js'); let renderer = fs.readFileSync(rendererFile, 'utf8');
   if (!renderer.includes('__lxFoliaAudio')) {

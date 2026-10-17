@@ -83,7 +83,7 @@ export function buildFoliaLines(doc: WordLyricDocument, duration?: number): {lin
 export function buildFoliaTheme(theme: ResolvedLyricsTheme, reduceMotion: boolean): FoliaTheme {
   const secondary = theme.palette.find(color => color.toLowerCase() !== theme.accent.toLowerCase()) ?? theme.text;
   return {
-    name: 'dmsys', backgroundColor: theme.background, primaryColor: theme.text, accentColor: theme.accent, secondaryColor: secondary,
+    name: 'lx-folia', backgroundColor: theme.background, primaryColor: theme.text, accentColor: theme.accent, secondaryColor: secondary,
     fontStyle: 'sans', animationIntensity: reduceMotion ? 'calm' : 'normal', lyricsIcons: DEFAULT_LYRIC_ICONS,
   };
 }

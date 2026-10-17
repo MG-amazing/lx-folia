@@ -2,7 +2,7 @@
 export const FOLIA_SCENES = ['sonnet', 'classic', 'tilt', 'cadenza', 'particles', 'claddagh', 'pendolo', 'cappella', 'diorama','lumiere','fume','monet','partita','still','tempera'] as const;
 export type FoliaEffect = typeof FOLIA_SCENES[number];
 export type FoliaScene = FoliaEffect | 'ambient';
-export const FOLIA_EFFECT_STORAGE_KEY = '@dmsys/music/folia-effect/v1';
+export const FOLIA_EFFECT_STORAGE_KEY = '@lx-folia/music/folia-effect/v1';
 export const FOLIA_EFFECT_LABELS: Record<FoliaEffect, string> = {
   sonnet: 'Sonnet', classic: 'Luminous', tilt: 'Tilt', cadenza: 'Mindscape', particles: 'Lumière・光の軌跡',
   claddagh: '3Dリング', pendolo: 'Pendolo', cappella: 'チャット', diorama: '3Dシネマ',

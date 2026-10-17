@@ -5,9 +5,9 @@ module.exports=()=>{
   const text=(zh,jp)=>ja?jp:zh;
   const link=document.createElement('link');link.rel='stylesheet';link.href=require('node:url').pathToFileURL(require('node:path').join(__dirname,'ktv-panel.css')).href;document.head.append(link);
   const open=document.createElement('button');open.id='lx-ktv-open';open.type='button';
-  const panel=document.createElement('section');panel.id='lx-ktv-panel';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label',text('KTV 已点队列','KTV 予約キュー'));
+  const panel=document.createElement('section');panel.id='lx-ktv-panel';panel.hidden=true;panel.setAttribute('role','dialog');panel.setAttribute('aria-label',text('预约队列','予約リスト'));
   const header=document.createElement('header'),title=document.createElement('strong'),settings=document.createElement('button'),close=document.createElement('button');
-  title.textContent=text('KTV 已点队列','KTV 予約キュー');settings.type=close.type='button';settings.textContent=text('API 设置','API 設定');close.textContent='×';close.setAttribute('aria-label',text('关闭队列','閉じる'));
+  title.textContent=text('预约队列','予約リスト');settings.type=close.type='button';settings.textContent=text('API 设置','API 設定');close.textContent='×';close.setAttribute('aria-label',text('关闭队列','閉じる'));
   settings.onclick=async()=>{location.hash='#/setting';await new Promise(r=>setTimeout(r,120));Array.from(document.querySelectorAll('[role=tab]')).find(e=>e.textContent.trim()==='Open API'||e.getAttribute('aria-label')==='开放 API')?.click();panel.hidden=true;};
   close.onclick=()=>{panel.hidden=true;open.setAttribute('aria-expanded','false');};header.append(title,settings,close);
   const now=document.createElement('div');now.className='lx-ktv-now';
@@ -19,7 +19,7 @@ module.exports=()=>{
   next.onclick=()=>action('next',{});
   async function refresh(force=false){
     const queue=(await controller.handle('queue')).list,info=window.lxData?.musicInfo||{};
-    open.textContent=text(`KTV · 已点 ${queue.length}`,`KTV · 予約 ${queue.length}`);
+    open.textContent=text(`预约 ${queue.length}`,`予約 ${queue.length}`);
     const key=JSON.stringify([info.id,info.name,info.singer,queue,window.lxData?.appSetting?.['openAPI.enable']]);
     if(panel.hidden||!force&&key===fingerprint)return;fingerprint=key;
     now.replaceChildren();const caption=document.createElement('small'),song=document.createElement('strong');caption.textContent=text('正在播放','再生中');song.textContent=info.name?`${info.name}${info.singer?' · '+info.singer:''}`:text('当前没有播放歌曲','再生中の曲はありません');now.append(caption,song);

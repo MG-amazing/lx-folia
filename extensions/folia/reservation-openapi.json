@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "LX Folia KTV API",
+    "title": "LX Folia Reservation API",
     "version": "0.1.5",
     "description": "仅内网；管理员密码长期有效，修改立即失效。与 LX 原生稍后播放队列和 PC 队列面板同步。"
   },
@@ -41,7 +41,7 @@
     }
   },
   "paths": {
-    "/ktv/search": {
+    "/reservation/search": {
       "get": {
         "summary": "搜索歌曲",
         "responses": {
@@ -99,7 +99,7 @@
         ]
       }
     },
-    "/ktv/queue": {
+    "/reservation/queue": {
       "get": {
         "summary": "待播队列",
         "responses": {
@@ -162,7 +162,7 @@
         }
       }
     },
-    "/ktv/queue/top": {
+    "/reservation/queue/top": {
       "post": {
         "summary": "置顶",
         "responses": {
@@ -201,7 +201,7 @@
         }
       }
     },
-    "/ktv/queue/remove": {
+    "/reservation/queue/remove": {
       "post": {
         "summary": "移除",
         "responses": {
@@ -240,7 +240,7 @@
         }
       }
     },
-    "/ktv/next": {
+    "/reservation/next": {
       "post": {
         "summary": "切歌，空队列时暂停",
         "responses": {
@@ -356,6 +356,93 @@
           },
           "503": {
             "description": "密码或播放器未就绪"
+          }
+        }
+      }
+    },
+    "/reservation/status": {
+      "get": {
+        "summary": "获取当前歌曲与按顺序排列的全部待播预约",
+        "responses": {
+          "200": {
+            "description": "nowPlaying 当前播放信息；queue 有序预约条目",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "nowPlaying",
+                    "queue"
+                  ],
+                  "properties": {
+                    "nowPlaying": {
+                      "type": "object",
+                      "properties": {
+                        "musicId": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "singer": {
+                          "type": "string"
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "stopped",
+                            "loading",
+                            "playing",
+                            "paused",
+                            "error"
+                          ]
+                        },
+                        "progress": {
+                          "type": "number",
+                          "description": "秒"
+                        },
+                        "duration": {
+                          "type": "number",
+                          "description": "秒"
+                        }
+                      }
+                    },
+                    "queue": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "queueId": {
+                            "type": "string"
+                          },
+                          "musicId": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "singer": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "密码错误或缺失"
+          },
+          "403": {
+            "description": "仅内网访问"
+          },
+          "503": {
+            "description": "尚未配置密码或播放器未就绪"
           }
         }
       }

@@ -14,6 +14,7 @@ exports.createController=api=>{
       while(songs.size>2000)songs.delete(songs.keys().next().value);
       return {list:result.map(brief),source,page};
     }
+    if(action==='status')return {nowPlaying:api.nowPlaying(),queue:list()};
     if(action==='queue')return {list:list()};
     const run=async()=>{
       if(action==='enqueue'){

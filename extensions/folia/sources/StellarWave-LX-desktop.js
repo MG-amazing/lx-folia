@@ -1,11 +1,11 @@
 /*!
- * @name 星澜聚合音源（DMSYS桌面）
- * @version 3.2.0-dmsys.3-desktop
- * @description 来自 dmsys-mobile c261992，保留响应校验与并发备用接口
- * @author 星澜团队 / DMSYS
+ * @name 星澜聚合音源（桌面版）
+ * @version 3.2.0-lx.1-desktop
+ * @description 桌面适配，保留响应校验与并发备用接口
+ * @author 星澜团队
  */
 
-function dmsysDesktopVerifyAudio(url, musicInfo) {
+function foliaDesktopVerifyAudio(url, musicInfo) {
   return new Promise((resolve, reject) => {
     globalThis.lx.request(url, {method:'GET',timeout:8000,headers:{Range:'bytes=0-4095'}}, (error, response, body) => {
       if (error) return reject(error);
@@ -29,7 +29,7 @@ function dmsysDesktopVerifyAudio(url, musicInfo) {
 }
 
 
-function dmsysCheckAudioResponse(data, musicInfo) {
+function foliaCheckAudioResponse(data, musicInfo) {
   if (!data || typeof data !== 'object' || !data.url) return;
   if (data.freeTrialInfo || data.isPreview === true || data.isTrial === true) {
     throw new Error('音源が試聴用の音声を返しました。次の接続先を試します。');
@@ -48,16 +48,16 @@ function dmsysCheckAudioResponse(data, musicInfo) {
     throw new Error('音源が短い試聴音声を返しました (' + actual + '秒 / 楽曲' + Math.round(expected) + '秒)。次の接続先を試します。');
   }
 }
-function dmsysRejectTrialMetadata(value, depth = 0) {
+function foliaRejectTrialMetadata(value, depth = 0) {
   if (!value || typeof value !== 'object' || depth > 4) return;
-  if (Array.isArray(value)) { value.slice(0, 20).forEach(item => dmsysRejectTrialMetadata(item, depth + 1)); return; }
+  if (Array.isArray(value)) { value.slice(0, 20).forEach(item => foliaRejectTrialMetadata(item, depth + 1)); return; }
   if ((value.url || value.purl) && (value.freeTrialInfo || value.trialInfo || value.isPreview === true || value.isTrial === true)) {
     throw new Error('音源が試聴用の音声を返しました。');
   }
-  if (value.data) dmsysRejectTrialMetadata(value.data, depth + 1);
+  if (value.data) foliaRejectTrialMetadata(value.data, depth + 1);
 }
 // First verified success, bounded workers; slow failures cannot block later backends.
-function dmsysFirstVerified(items, run, concurrency = 2) {
+function foliaFirstVerified(items, run, concurrency = 2) {
   return new Promise((resolve, reject) => {
     let cursor = 0, active = 0, settled = false;
     const errors = [];
@@ -2041,7 +2041,7 @@ const WY_BACKENDS = [
       })
 
       const d = res.body
-      dmsysCheckAudioResponse(d && (d.data || d), musicInfo)
+      foliaCheckAudioResponse(d && (d.data || d), musicInfo)
 
       if (d && d.data && d.data.url) return d.data.url
 
@@ -3582,9 +3582,9 @@ for (const pool of [TX_BACKENDS, WY_BACKENDS, KW_BACKENDS, KG_BACKENDS, MG_BACKE
   for (const backend of pool) {
     const fetchOriginal = backend.fetch;
     backend.fetch = async (songId, quality, musicInfo) => {
-      if (musicInfo?.dmsysDeadline && Date.now() >= musicInfo.dmsysDeadline) throw new Error('フル音源検索の時間上限に達しました。');
+      if (musicInfo?.foliaDeadline && Date.now() >= musicInfo.foliaDeadline) throw new Error('フル音源検索の時間上限に達しました。');
       const url = await fetchOriginal(songId, quality, musicInfo);
-      await dmsysDesktopVerifyAudio(url, musicInfo);
+      await foliaDesktopVerifyAudio(url, musicInfo);
       return url;
     };
   }
@@ -3607,11 +3607,11 @@ const handleGetMusicUrl = async (source, musicInfo, quality) => {
 
   const cached = getCachedUrl(cacheKey)
 
-  if (cached && !musicInfo.dmsysForceRefresh) {
+  if (cached && !musicInfo.foliaForceRefresh) {
 
     console.log(`[星澜] 缓存命中: ${source} ${songId} ${targetQuality}`)
 
-    try { await dmsysDesktopVerifyAudio(cached, musicInfo); return cached; } catch { urlCache.delete(cacheKey); }
+    try { await foliaDesktopVerifyAudio(cached, musicInfo); return cached; } catch { urlCache.delete(cacheKey); }
 
   }
 
@@ -3638,7 +3638,7 @@ const handleGetMusicUrl = async (source, musicInfo, quality) => {
 
 
 
-  const result = await dmsysFirstVerified(backends, async backend => {
+  const result = await foliaFirstVerified(backends, async backend => {
     const url = await backend.fetch(songId, targetQuality, musicInfo);
     if (!/^https?:\/\//i.test(url || '')) throw new Error('音源URLが無効です。');
     return url;

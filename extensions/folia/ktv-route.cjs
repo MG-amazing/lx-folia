@@ -15,18 +15,20 @@ exports.install=({ipcMain,getMain,isMain})=>{
 };
 exports.handle=(req,res)=>{
   let url;try{url=new URL(req.url,'http://localhost');}catch{res.writeHead(400);res.end('Invalid URL');return true;}
-  if(!url.pathname.startsWith('/ktv/'))return false;
+  if(url.pathname.startsWith('/ktv/'))url.pathname=url.pathname.replace('/ktv/','/reservation/');
+  if(!url.pathname.startsWith('/reservation/'))return false;
   const send=(status,data)=>{if(!res.destroyed){res.writeHead(status,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'});res.end(JSON.stringify(data));}};
   (async()=>{
     let data={},action;
-    if(req.method==='GET'&&url.pathname==='/ktv/search'){action='search';data=Object.fromEntries(url.searchParams);}
-    else if(req.method==='GET'&&url.pathname==='/ktv/queue')action='queue';
-    else if(req.method==='POST'&&['/ktv/queue','/ktv/queue/top','/ktv/queue/remove','/ktv/next'].includes(url.pathname)){
+    if(req.method==='GET'&&url.pathname==='/reservation/status')action='status';
+    else if(req.method==='GET'&&url.pathname==='/reservation/search'){action='search';data=Object.fromEntries(url.searchParams);}
+    else if(req.method==='GET'&&url.pathname==='/reservation/queue')action='queue';
+    else if(req.method==='POST'&&['/reservation/queue','/reservation/queue/top','/reservation/queue/remove','/reservation/next'].includes(url.pathname)){
       let bytes=0,parts=[];for await(const part of req){bytes+=part.length;if(bytes>4096)throw Error('请求内容过大');parts.push(part);}
       try{data=JSON.parse(Buffer.concat(parts).toString()||'{}');}catch{throw Error('JSON 格式错误');}
       if(!data||typeof data!=='object'||Array.isArray(data))throw Error('JSON 对象无效');
-      action={'/ktv/queue':'enqueue','/ktv/queue/top':'top','/ktv/queue/remove':'remove','/ktv/next':'next'}[url.pathname];
-    }else{return send(404,{error:'Unknown KTV endpoint or method'});}
+      action={'/reservation/queue':'enqueue','/reservation/queue/top':'top','/reservation/queue/remove':'remove','/reservation/next':'next'}[url.pathname];
+    }else{return send(404,{error:'Unknown reservation endpoint or method'});}
     if(!state.request)return send(503,{error:'播放器尚未就绪'});
     send(200,await state.request(action,data));
   })().catch(error=>send(400,{error:error.message}));return true;

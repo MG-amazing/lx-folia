@@ -8,7 +8,7 @@ LX Music 2.12.6 + Folia 的完整歌词与背景效果，Windows x64 独立打�
 - Folia 风格主界面、无边框歌词窗口、封面控制面板、时间轴跳转、音量和播放控制。
 - 全部 14 种歌词效果：Sonnet、Tempera、Lumière、Classic、Cadenza、Partita、Fume、Tilt、Claddagh、Monet、Pendolo、Cappella、Diorama、Still。
 - 全部 6 种背景：Common、Monet、Nomand、Latent、Web Embed、Sora。默认 Classic「流光」+ Latent 混合背景。
-- 两个预置音源：StellarWave DMSYS desktop 与 HYW v1.1.0，首次使用仍须按原版流程接受协议。服务可用性由各音源提供方决定。
+- 两个预置音源：StellarWave LX desktop 与 HYW v1.1.0，首次使用仍须按原版流程接受协议。服务可用性由各音源提供方决定。
 - 保留 LX 播放、搜索、歌单、本地歌曲和下载功能。使用独立 `%APPDATA%\lx-folia` 配置，不覆盖原 LX 配置。
 - 播放时使用 LX 的真实 Audio 时钟和 WebAudio 分析数据；只有逐行时间的歌词不伪造逐字时间。长句按窗口大小缩放，打开侧面板时为歌词预留空间。
 
@@ -63,8 +63,10 @@ Folia：chthollyphile/folia-major，commit 7701347918a4177c1c57b538d7556db9606be
 
 验证：28项检查通过；可见1920x1040桌面窗口、同一组80行测试文本、Fume+Latent、流畅模式，首次文字约3.22秒降至1.10秒，稳定阶段两版均约60FPS；这是本地效果加载测试，不代表音源网络请求速度。成品包另验证画布位置、长句范围、逐字入场、5秒隐藏和鼠标恢复，安装包资源与被测运行目录的app.asar SHA256一致。
 
-## v0.1.5 KTV API 与电脑队列
+## v0.1.5 预约 API 与电脑队列
 
-Open API 设置中由管理员指定密码；所有原有接口及 KTV 接口使用 X-API-Key 或 Bearer 密码鉴权，长期有效，修改密码立即失效；限制直接内网地址访问。新增搜索、点歌、待播、置顶、移除、切歌接口，与 LX 原生稍后播放队列一致。电脑右下角 KTV 按钮查看并操作同一队列。不包含手机页面。
+Open API 设置中由管理员指定密码；所有原有接口及 预约 接口使用 X-API-Key 或 Bearer 密码鉴权，长期有效，修改密码立即失效；限制直接内网地址访问。新增搜索、点歌、待播、置顶、移除、切歌接口，与 LX 原生稍后播放队列一致。电脑右下角 预约 按钮查看并操作同一队列。不包含手机页面。
 
-[接口文档](extensions/folia/KTV-API.md)；[OpenAPI 定义](extensions/folia/ktv-openapi.json)。33 项检查通过；成品程序验证网易真实搜索20条、原生队列操作/切歌、PC/API 同步、密码修改与内网 IP/CORS。音频在隔离测试环境静音，未将选中歌曲等同于验证音源音频交付。
+[接口文档](extensions/folia/reservation-API.md)；[OpenAPI 定义](extensions/folia/reservation-openapi.json)。35 项检查通过；成品程序验证网易真实搜索20条、原生队列操作/切歌、PC/API 同步、密码修改与内网 IP/CORS。音频在隔离测试环境静音，未将选中歌曲等同于验证音源音频交付。
+
+统一查询 `GET /reservation/status` 返回 nowPlaying（曲目、歌手、状态、进度、时长）和 queue（预约顺序及条目ID）。源码及打包内容移除旧品牌，升级只迁移旧内置桌面音源，保留音源选择与歌单设置。
