@@ -6,6 +6,9 @@ const { makeDocument } = require('./convert.cjs');
 module.exports = function install() {
   if (window.__lxFoliaBridge) return;
   require('./skin.cjs')();
+  require('./api-settings.cjs')();
+  require('./ktv-renderer.cjs')();
+  require('./ktv-panel.cjs')();
   require('./word-lyrics.cjs').install();
   let active = false; let fingerprint = ''; let sequence = 0; let force = true; let lastClock = null;
   const diagnostics = window.__lxFoliaBridge = { version: 1, active: false, packets: 0 };

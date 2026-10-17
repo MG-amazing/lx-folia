@@ -1,0 +1,30 @@
+'use strict';
+const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),http=require('node:http'),{EventEmitter}=require('node:events');
+const {createAuth,isLanAddress}=require('./api-auth.cjs');
+test('LAN guard accepts private ranges and rejects public addresses',()=>{
+ for(const ip of ['127.0.0.1','192.168.11.8','10.1.2.3','172.16.0.2','172.31.255.2','::1','::ffff:192.168.11.8','fd00::2','fe80::1%4'])assert.equal(isLanAddress(ip),true,ip);
+ for(const ip of ['8.8.8.8','172.15.2.3','172.32.0.1','192.169.0.1','::ffff:8.8.8.8','2001:4860::8888','garbage'])assert.equal(isLanAddress(ip),false,ip);
+});
+test('native API requires password headers, persists across restart, and rotates existing SSE access',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'lx-api-auth-')),file=path.join(dir,'auth.json'),auth=createAuth(file);
+ t.after(()=>fs.rmSync(dir,{recursive:true,force:true}));
+ const server=http.createServer((req,res)=>{if(!auth.guard(req,res))return;res.writeHead(200);res.end('native response');});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));t.after(()=>new Promise(r=>server.close(r)));
+ const url='http://127.0.0.1:'+server.address().port+'/status';
+ assert.equal((await fetch(url)).status,503);
+ auth.setPassword('Local-test-secret');assert.equal(auth.status().expiresAt,null);
+ const preflight=await fetch(url,{method:'OPTIONS',headers:{Origin:'http://192.168.11.9','Access-Control-Request-Headers':'X-API-Key'}});assert.equal(preflight.status,204);assert.match(preflight.headers.get('access-control-allow-headers'),/X-API-Key/);
+ assert.equal(fs.readFileSync(file,'utf8').includes('Local-test-secret'),false);
+ assert.equal((await fetch(url)).status,401);
+ assert.equal((await fetch(url+'?password=Local-test-secret')).status,401);
+ assert.equal((await fetch(url,{headers:{'X-API-Key':'wrong'}})).status,401);
+ assert.equal((await fetch(url,{headers:{'X-API-Key':'Local-test-secret'}})).status,200);
+ assert.equal((await fetch(url,{headers:{Authorization:'Bearer Local-test-secret'}})).status,200);
+ const restarted=createAuth(file),response=new EventEmitter();response.setHeader=()=>{};response.destroy=()=>{response.destroyed=true;};
+ assert.equal(restarted.guard({socket:{remoteAddress:'192.168.11.2'},headers:{'x-api-key':'Local-test-secret'}},response),true);
+ auth.setPassword('Changed-test-secret');assert.equal(response.destroyed,true);
+ assert.equal((await fetch(url,{headers:{'X-API-Key':'Local-test-secret'}})).status,401);
+ assert.equal((await fetch(url,{headers:{'X-API-Key':'Changed-test-secret'}})).status,200);
+ const denied={writeHead:code=>{denied.status=code;},end:()=>{}};
+ assert.equal(auth.guard({socket:{remoteAddress:'8.8.8.8'},headers:{'x-api-key':'Changed-test-secret','x-forwarded-for':'192.168.1.2'}},denied),false);assert.equal(denied.status,403);
+});

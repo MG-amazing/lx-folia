@@ -644,3 +644,16 @@ export const dislikeMusic = async() => {
   await addDislikeInfo([{ name: minfo.name, singer: minfo.singer }])
   await playNext(true)
 }
+
+// Same native player/search seam used by the packaged KTV API bridge.
+import ktvMusicSdk from '@renderer/utils/musicSdk'
+import { toNewMusicInfo as ktvToNewMusicInfo } from '@renderer/utils'
+import { addTempPlayList as ktvAddLater } from '@renderer/store/player/action'
+;(window as any).__lxFoliaKtvNative = {
+  search: async(q: string,source: string,page: number) => (await (ktvMusicSdk as any)[source].musicSearch.search(q,page,20)).list.map(ktvToNewMusicInfo),
+  queue: () => tempPlayList,
+  enqueue: (musicInfo: LX.Music.MusicInfo,isTop: boolean) => ktvAddLater([{listId:null,musicInfo,isTop}]),
+  remove: (index: number) => removeTempPlayList(index),
+  pause: () => pause(),
+  next: () => playNext(),
+}

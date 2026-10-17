@@ -26,13 +26,15 @@ exports.install = function install({ app, BrowserWindow, ipcMain, net }) {
   };
   app.whenReady().then(() => { try { validate(JSON.parse(fs.readFileSync(settingsFile(), 'utf8'))); } catch {} });
   const isMain = event => main && !main.isDestroyed() && event.sender === main.webContents;
+  ipcMain.handle('lx-folia-api-auth',(event,data={})=>{if(!isMain(event))throw Error('Invalid LX sender');const auth=require('./api-auth.cjs');return Object.hasOwn(data,'password')?auth.setPassword(data.password):auth.status();});
+  require('./ktv-route.cjs').install({ipcMain,getMain:()=>main,isMain});
   const isStage = event => stage && !stage.isDestroyed() && event.sender === stage.webContents;
   const send = packet => { if (stage && !stage.isDestroyed()) stage.webContents.send('lx-folia-packet', packet); };
   const watch = enabled => { if (main && !main.isDestroyed()) main.webContents.send('lx-folia-watch', enabled); };
   const snapshot = () => { if (latestDocument) send(latestDocument); if (latestClock) send(latestClock); };
   async function openStage() {
     if (stage && !stage.isDestroyed()) { if (stage.isMinimized()) stage.restore(); stage.show(); stage.focus(); watch(true); return; }
-    stage = new BrowserWindow({ width: 1385, height: 896, minWidth: 650, minHeight: 450, title: 'LX Folia v0.1.4 · 动效歌词', backgroundColor: '#111014', frame: false, roundedCorners: true, autoHideMenuBar: true, alwaysOnTop: settings.pin,
+    stage = new BrowserWindow({ width: 1385, height: 896, minWidth: 650, minHeight: 450, title: 'LX Folia v0.1.5 · 动效歌词', backgroundColor: '#111014', frame: false, roundedCorners: true, autoHideMenuBar: true, alwaysOnTop: settings.pin,
       webPreferences: { preload: path.join(__dirname, 'preload.cjs'), sandbox: true, nodeIntegration: false, contextIsolation: true, webSecurity: true, webgl: true, backgroundThrottling: true } });
     stage.webContents.setWindowOpenHandler(() => ({ action: 'deny' })); stage.webContents.on('will-navigate', event => event.preventDefault());
     stage.on('show', () => watch(true)); stage.on('restore', () => { watch(true); snapshot(); }); stage.on('hide', () => watch(false)); stage.on('minimize', () => watch(false)); stage.on('closed', () => { stage = null; watch(false); });

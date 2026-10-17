@@ -85,6 +85,8 @@ const handleSubscribePlayerStatus = (req: http.IncomingMessage, res: http.Server
 const handleStartServer = async(port: number, ip: string) => new Promise<void>((resolve, reject) => {
   playerStatusKeys = Object.keys(global.lx.player_status) as SubscribeKeys[]
   httpServer = http.createServer((req, res): void => {
+    if (!require('../../../../extensions/folia/api-auth.cjs').guard(req,res)) return
+    if (require('../../../../extensions/folia/ktv-route.cjs').handle(req,res)) return
     const [endUrl, query] = `/${req.url?.split('/').at(-1) ?? ''}`.split('?')
     let code = 200
     let msg = 'OK'
