@@ -10,6 +10,7 @@ module.exports = function install() {
   require('./ktv-renderer.cjs')();
   require('./ktv-panel.cjs')();
   require('./word-lyrics.cjs').install();
+  require('./update-settings.cjs').install();
   let active = false; let fingerprint = ''; let sequence = 0; let force = true; let lastClock = null;
   const diagnostics = window.__lxFoliaBridge = { version: 1, active: false, packets: 0 };
   function sendSnapshot() {

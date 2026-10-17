@@ -41,9 +41,10 @@ async function install() {
   const mainFile = path.join(scratch, 'dist/main.js'); let main = fs.readFileSync(mainFile, 'utf8');
   if (!main.includes('/* LX_FOLIA_EXTENSION */')) main += '\n/* LX_FOLIA_EXTENSION */\nrequire("./folia/host.cjs").install(require("electron"));\n';
   main=require('./api-auth-patch.cjs').patch(main);
+  main=require('./update-patch.cjs').patch(main);
   fs.writeFileSync(mainFile, main);
   const target = path.join(scratch, 'dist/folia'); fs.mkdirSync(target, { recursive: true });
-  for (const name of ['ktv-panel.cjs','ktv-panel.css','api-auth.cjs','api-settings.cjs','ktv.cjs','ktv-renderer.cjs','ktv-route.cjs','word-lyrics.cjs', 'ui-i18n.js', 'host.cjs', 'preload.cjs', 'source-bridge.cjs', 'skin.cjs', 'skin.css', 'convert.cjs', 'shell.js', 'desktop-shell.js', 'shell.css', 'folia-colors.js', 'folia-catalog.js', 'index.html', 'stage.html', 'renderer-manifest.json', 'FOLIA-AGPL-3.0.txt', 'NOTICE.txt']) fs.copyFileSync(path.join(__dirname, name), path.join(target, name));
+  for (const name of ['disable-updates.cjs','update-settings.cjs','ktv-panel.cjs','ktv-panel.css','api-auth.cjs','api-settings.cjs','ktv.cjs','ktv-renderer.cjs','ktv-route.cjs','word-lyrics.cjs', 'ui-i18n.js', 'host.cjs', 'preload.cjs', 'source-bridge.cjs', 'skin.cjs', 'skin.css', 'convert.cjs', 'shell.js', 'desktop-shell.js', 'shell.css', 'folia-colors.js', 'folia-catalog.js', 'index.html', 'stage.html', 'renderer-manifest.json', 'FOLIA-AGPL-3.0.txt', 'NOTICE.txt']) fs.copyFileSync(path.join(__dirname, name), path.join(target, name));
   require('./locale-patch.cjs').patch(scratch);
   const next = archive + '.folia-next'; await asar.createPackage(scratch, next);
   const backup = archive + '.before-folia-' + new Date().toISOString().replace(/[:.]/g, '-') + '.bak';
